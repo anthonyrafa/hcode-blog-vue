@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu primeiro Exemplo com Vue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Catamaran&family=Montserrat:wght@300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <div id="root">
+
+        <header>
+            <h1>Gerenciamento de Usuários com Vue</h1>            
+        </header>
+
+        <main>            
+
+            <form v-on:submit.prevent="addUser">
+
+                <div class="field">
+                    <label for="username-input">Nome</label>
+                    <input type="text" name="username" id="username-input" placeholder="Digite o nome do usuário" v-model="newUser">
+                </div>
+                
+                <button type="submit">Cadastrar</button>
+
+            </form>
+
+            <div>
+
+                <h3>Lista de Usuários</h3>
+
+                <ol>
+                    <li v-for="user in users" :key="user.id">
+                        <input type="text" v-bind:value="user.name" v-on:change="setUser($event.target.value, user.id)">
+                        <button class="user-delete" @click="removeUser(user.id)">Excluir</button>
+                    </li>
+                </ol>
+
+            </div>
+
+        </main>
+
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.min.js"></script>
+
+    <script>
+
+        new Vue({
+            el: '#root',
+            data: {
+                users: [],
+                newUser: ''
+            },
+            methods: {
+                addUser: function() {
+                    this.users.push({
+                        id: (this.users.length + 1),
+                        name: this.newUser
+                    })
+                },
+                setUser(newName, id) {
+                    
+                    this.users.map(user => {
+                        
+                        if (user.id == id) {
+                            user[name] = newName;
+                        }
+
+                    });
+                    
+                },
+                removeUser(id) {
+                    this.users = this.users.filter(user => {
+                        return (user.id != id);
+                    })
+                }
+            }
+        })
+
+    </script>
+
+</body>
+</html>
