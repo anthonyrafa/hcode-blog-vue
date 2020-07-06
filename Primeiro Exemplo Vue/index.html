@@ -12,16 +12,21 @@
     <div id="root">
 
         <header>
-            <h1>Gerenciamento de Usuários com Vue</h1>            
+            <h1>Gerenciamento de Usuários com Vue</h1>
         </header>
 
-        <main>            
+        <main>
 
-            <form v-on:submit.prevent="addUser">
+            <form v-on:submit.prevent="addUser(formData)">
 
                 <div class="field">
                     <label for="username-input">Nome</label>
-                    <input type="text" name="username" id="username-input" placeholder="Digite o nome do usuário" v-model="newUser">
+                    <input type="text" name="username" id="username-input" placeholder="Digite o nome do usuário" v-model="formData.name">
+                </div>
+
+                <div class="field">
+                    <label for="email-input">Email</label>
+                    <input type="email" name="email" id="email-input" placeholder="Digite o email do usuário" v-model="formData.email">
                 </div>
                 
                 <button type="submit">Cadastrar</button>
@@ -34,7 +39,8 @@
 
                 <ol>
                     <li v-for="user in users" :key="user.id">
-                        <input type="text" v-bind:value="user.name" v-on:change="setUser($event.target.value, user.id)">
+                        <input type="text" v-model="user.name" v-on:change="setUser(user)">
+                        <input type="text" v-model="user.email" v-on:change="setUser(user)">
                         <button class="user-delete" @click="removeUser(user.id)">Excluir</button>
                     </li>
                 </ol>
@@ -45,35 +51,63 @@
 
     </div>
     
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.min.js"></script>
 
     <script>
+
+        const server = "http://localhost:8000/api";
 
         new Vue({
             el: '#root',
             data: {
                 users: [],
-                newUser: ''
+                formData: {}
+            },
+            async created() {
+
+                let results = await axios.get(`${server}/users`);
+
+                this.users = results.data;
+
             },
             methods: {
-                addUser: function() {
-                    this.users.push({
-                        id: (this.users.length + 1),
-                        name: this.newUser
-                    })
-                },
-                setUser(newName, id) {
-                    
-                    this.users.map(user => {
-                        
-                        if (user.id == id) {
-                            user[name] = newName;
-                        }
+                async addUser(data) {
 
-                    });
+                    if (!data.name) {
+                        alert('Informe o nome');
+                    } else if (!data.email) {
+                        alert('Informe o email');
+                    } else {
+                        
+                        let results = await axios.post(`${server}/users`, data);
+
+                        this.users.push({
+                            id: results.data.id,
+                            name: results.data.name,
+                            email: results.data.email
+                        });
+                        
+                    }
+
+                },
+                async setUser(data) {
+
+                    if (!data.name) {
+                        alert('Informe o nome');
+                    } else if (!data.email) {
+                        alert('Informe o email');
+                    } else {
+                        
+                        await axios.patch(`${server}/users/${data.id}`, data);
+                        
+                    }
                     
                 },
-                removeUser(id) {
+                async removeUser(id) {
+
+                    await axios.delete(`${server}/users/${id}`);
+
                     this.users = this.users.filter(user => {
                         return (user.id != id);
                     })
